@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,13 +19,8 @@ const Index = () => {
             </div>
             <div className="flex items-center space-x-4">
               <Link to="/create-date">
-                <Button variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50">
-                  Browse Plans
-                </Button>
-              </Link>
-              <Link to="/create-date">
-                <Button className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700">
-                  Create Date Plan
+                <Button className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-lg px-8 py-3">
+                  Start Planning
                 </Button>
               </Link>
             </div>
@@ -42,19 +36,15 @@ const Index = () => {
             <br />
             Perfectly Planned
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
             Discover and create amazing date experiences with AI-powered planning. 
             From cozy dinner dates to adventure-filled days, we'll help you craft unforgettable moments.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex justify-center">
             <Link to="/create-date">
-              <Button size="lg" className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-lg px-8 py-6">
-                Start Planning
-              </Button>
-            </Link>
-            <Link to="/browse-plans">
-              <Button size="lg" variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50 text-lg px-8 py-6">
-                Browse Date Ideas
+              <Button size="lg" className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-xl px-12 py-8 rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300">
+                <Heart className="h-6 w-6 mr-3" />
+                Start Planning Your Perfect Date
               </Button>
             </Link>
           </div>
@@ -124,9 +114,9 @@ const Index = () => {
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-12">
             <h2 className="text-3xl font-bold text-gray-800">Popular Date Plans</h2>
-            <Link to="/browse-plans">
-              <Button variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50">
-                View All
+            <Link to="/create-date">
+              <Button className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700">
+                Create Your Own
               </Button>
             </Link>
           </div>
