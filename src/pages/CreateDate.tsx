@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +16,8 @@ const CreateDate = () => {
     calendar: null,
     location: {},
     activities: [],
-    budget: ''
+    budget: '',
+    interests: ''
   });
 
   const steps = [
@@ -73,10 +73,10 @@ const CreateDate = () => {
                         isCompleted ? 'border-green-600 bg-green-50' : 'border-gray-300'}`}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <span className="font-medium">{step.title}</span>
+                    <span className="hidden sm:block font-medium">{step.title}</span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={`w-16 h-0.5 mx-4 ${isCompleted ? 'bg-green-300' : 'bg-gray-300'}`} />
+                    <div className={` hidden sm:block w-16 h-0.5 mx-4 ${isCompleted ? 'bg-green-300' : 'bg-gray-300'}`} />
                   )}
                 </div>
               );
@@ -88,7 +88,7 @@ const CreateDate = () => {
         <div className="space-y-6">
           {currentStep === 1 && <CalendarIntegration />}
           {currentStep === 2 && <LocationPreferences />}
-          {currentStep === 3 && <ActivityPreferences />}
+          {currentStep === 3 && <ActivityPreferences nextStep={nextStep} />}
           {currentStep === 4 && <DatePlanMindMap />}
         </div>
 
