@@ -1,11 +1,17 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Heart } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
-const ActivityPreferences = () => {
+interface ActivityPreferencesProps {
+  nextStep: () => void;
+}
+
+const ActivityPreferences = ({ nextStep }: ActivityPreferencesProps) => {
   const [selectedActivities, setSelectedActivities] = useState<string[]>([]);
+  const [interests, setInterests] = useState('');
 
   const activityCategories = [
     {
@@ -64,6 +70,27 @@ const ActivityPreferences = () => {
 
   return (
     <div className="space-y-6">
+      {/* Interest Input Card */}
+      <Card className="bg-white/70 backdrop-blur-sm border-rose-100">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-gray-800">What interests you for this date?</CardTitle>
+          <p className="text-gray-600">Share any specific interests or preferences you have in mind</p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="interests">Your interests</Label>
+            <Input
+              id="interests"
+              placeholder="e.g., romantic dinner, outdoor activities, art galleries..."
+              className="w-full"
+              value={interests}
+              onChange={(e) => setInterests(e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Activities Card */}
       <Card className="bg-white/70 backdrop-blur-sm border-rose-100">
         <CardHeader>
           <CardTitle className="text-2xl text-gray-800 flex items-center space-x-2">
@@ -97,16 +124,28 @@ const ActivityPreferences = () => {
             </div>
           ))}
 
-          {/* Selected Count */}
-          <div className="text-center p-4 bg-rose-50 rounded-lg">
-            <p className="text-rose-700">
-              <span className="font-semibold">{selectedActivities.length}</span> activities selected
-            </p>
-            {selectedActivities.length > 0 && (
-              <p className="text-sm text-rose-600 mt-1">
-                Perfect! We'll use these preferences to craft your ideal date plan.
+          {/* Skip and Selected Count Section */}
+          <div className="space-y-4">
+            <div className="text-center">
+              <Button
+                variant="ghost"
+                className="text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                onClick={nextStep}
+              >
+                Skip preferences and continue →
+              </Button>
+            </div>
+
+            <div className="text-center p-4 bg-rose-50 rounded-lg">
+              <p className="text-rose-700">
+                <span className="font-semibold">{selectedActivities.length}</span> activities selected
               </p>
-            )}
+              {selectedActivities.length > 0 && (
+                <p className="text-sm text-rose-600 mt-1">
+                  Perfect! We'll use these preferences to craft your ideal date plan.
+                </p>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
