@@ -150,13 +150,14 @@ const CreateDate = () => {
           >
             Previous
           </Button>
-          <Button 
-            onClick={handleNext} 
-            disabled={currentStep === 4}
-            className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700"
-          >
-            {currentStep === 4 ? 'Generate Plan' : 'Next'}
-          </Button>
+          {currentStep < 4 && (
+            <Button 
+              onClick={handleNext} 
+              className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700"
+            >
+              Next
+            </Button>
+          )}
         </div>
       </div>
     </div>
