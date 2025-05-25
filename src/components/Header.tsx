@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Heart } from 'lucide-react';
@@ -10,14 +9,14 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-2">
-            <Heart className="h-8 w-8 text-rose-500" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-purple-600 bg-clip-text text-transparent">
+            <Heart className="h-6 w-6 sm:h-8 sm:w-8 text-rose-500" />
+            <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-rose-600 to-purple-600 bg-clip-text text-transparent">
               DateCraft
             </span>
           </div>
           <div className="flex items-center space-x-4">
             <Link to="/create-date">
-              <Button className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-lg px-8 py-3">
+              <Button className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700 text-base sm:text-lg px-4 sm:px-8 py-2 sm:py-3">
                 Start Planning
               </Button>
             </Link>
