@@ -95,11 +95,6 @@ const CreateDate = () => {
                 DateCraft
               </span>
             </Link>
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50">
-                Save Draft
-              </Button>
-            </div>
           </div>
         </div>
       </nav>

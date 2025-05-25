@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MapPin, Star, Users, Heart, GripHorizontal, Plus } from 'lucide-react';
+import { Clock, MapPin, Star, Users, Heart, GripHorizontal, Plus, MoreVertical, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -20,6 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useNavigate } from 'react-router-dom';
 
 interface Activity {
@@ -254,7 +260,8 @@ const ActivityCard = ({
   onDragEnd,
   onDragOver,
   onDrop,
-  onReplace
+  onReplace,
+  onRemove
 }: { 
   activity: Activity;
   index: number;
@@ -265,6 +272,7 @@ const ActivityCard = ({
   onDragOver: (e: React.DragEvent) => void;
   onDrop: (e: React.DragEvent, index: number) => void;
   onReplace: (activity: Activity) => void;
+  onRemove: () => void;
 }) => {
   const [showReplaceModal, setShowReplaceModal] = useState(false);
 
@@ -296,17 +304,38 @@ const ActivityCard = ({
           <CardContent className="p-4">
             {/* Always visible content */}
             <div className="flex items-start justify-between mb-2">
-              <div>
-                <Badge variant="outline" className="mb-2">{activity.time}</Badge>
-                <h4 className="font-semibold text-gray-800">{activity.title}</h4>
-                <p className="text-sm text-gray-600">{activity.type}</p>
-              </div>
-              {activity.rating && (
-                <div className="flex items-center space-x-1">
-                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                  <span className="text-sm font-medium">{activity.rating}</span>
+              <div className="flex items-start gap-2">
+                <div className="md:hidden mt-1">
+                  <GripHorizontal className="h-4 w-4 text-gray-400" />
                 </div>
-              )}
+                <div>
+                  <Badge variant="outline" className="mb-2">{activity.time}</Badge>
+                  <h4 className="font-semibold text-gray-800">{activity.title}</h4>
+                  <p className="text-sm text-gray-600">{activity.type}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                {activity.rating && (
+                  <div className="flex items-center space-x-1">
+                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    <span className="text-sm font-medium">{activity.rating}</span>
+                  </div>
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="focus:outline-none">
+                    <MoreVertical className="h-4 w-4 text-gray-400 hover:text-gray-600" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem 
+                      onClick={onRemove}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Remove Activity
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             
             {/* Content revealed on hover */}
@@ -407,12 +436,15 @@ const CreateActivityModal = ({ onCreateActivity }: { onCreateActivity: (activity
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const durationNum = parseFloat(duration);
+    const durationText = durationNum === 1 ? 'hour' : 'hours';
+    
     const newActivity: Activity = {
       id: Date.now(), // Generate a unique ID
       time: "12:00 PM", // This will be adjusted when added to timeline
       title,
       type,
-      duration: `${duration} hours`,
+      duration: `${durationNum} ${durationText}`,
       price: `$${price}`,
       location,
       description,
@@ -556,6 +588,32 @@ const DatePlanMindMap = () => {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [draggedFromSaved, setDraggedFromSaved] = useState<number | null>(null);
 
+  // Calculate total price from all activities
+  const calculateTotalPrice = (activityList: Activity[]) => {
+    return activityList.reduce((total, activity) => {
+      if (activity.price === 'Free') return total;
+      const priceMatch = activity.price.match(/\$?(\d+)/);
+      const price = priceMatch ? parseInt(priceMatch[1]) : 0;
+      return total + price;
+    }, 0);
+  };
+
+  // Calculate total duration from all activities
+  const calculateTotalDuration = (activityList: Activity[]) => {
+    const totalHours = activityList.reduce((total, activity) => {
+      // Handle both "X hours" and "X hour" formats
+      const durationMatch = activity.duration.match(/(\d+\.?\d*)\s*(?:hour|hours)/);
+      const hours = durationMatch ? parseFloat(durationMatch[1]) : 0;
+      return total + hours;
+    }, 0);
+
+    if (totalHours === 0) return "No duration";
+    if (totalHours < 1) return `${Math.round(totalHours * 60)} mins`;
+    if (totalHours === 1) return "1 hour";
+    if (Number.isInteger(totalHours)) return `${totalHours} hours`;
+    return `${Math.floor(totalHours)}h ${Math.round((totalHours % 1) * 60)}m`;
+  };
+
   const handleDragStart = (e: React.DragEvent, index: number, fromSaved: boolean = false) => {
     if (fromSaved) {
       setDraggedFromSaved(index);
@@ -631,8 +689,11 @@ const DatePlanMindMap = () => {
       if (index > 0) {
         // Add duration of previous activities
         for (let i = 0; i < index; i++) {
-          const prevDuration = parseInt(activitiesToUpdate[i].duration.split(' ')[0]) * 60; // Convert hours to minutes
-          baseTime.setMinutes(baseTime.getMinutes() + prevDuration);
+          // Handle both "X hours" and "X hour" formats
+          const durationMatch = activitiesToUpdate[i].duration.match(/(\d+\.?\d*)\s*(?:hour|hours)/);
+          const hours = durationMatch ? parseFloat(durationMatch[1]) : 0;
+          const minutes = Math.round(hours * 60); // Convert hours to minutes
+          baseTime.setMinutes(baseTime.getMinutes() + minutes);
         }
       }
 
@@ -661,10 +722,20 @@ const DatePlanMindMap = () => {
     setActivities(updateActivityTimes(newActivities));
   };
 
+  const handleRemove = (index: number) => {
+    const newActivities = [...activities];
+    newActivities.splice(index, 1);
+    setActivities(updateActivityTimes(newActivities));
+  };
+
   const currentPlan = {
     ...datePlans[selectedPlan],
     activities
   };
+
+  // Calculate current total price and duration
+  const totalPrice = calculateTotalPrice(activities);
+  const totalDuration = calculateTotalDuration(activities);
 
   const handleBookPlan = () => {
     // Here you could add any booking logic, API calls, etc.
@@ -700,10 +771,10 @@ const DatePlanMindMap = () => {
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <div className="flex items-center space-x-1">
                 <Clock className="h-4 w-4" />
-                <span>{currentPlan.duration}</span>
+                <span>{totalDuration}</span>
               </div>
               <Badge variant="secondary">{activities.length} Activities</Badge>
-              <Badge variant="secondary">Total: ~$74 per person</Badge>
+              <Badge variant="secondary">Total: ~${totalPrice} per person</Badge>
             </div>
           </div>
 
@@ -734,6 +805,7 @@ const DatePlanMindMap = () => {
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onReplace={(newActivity) => handleReplace(index, newActivity)}
+                  onRemove={() => handleRemove(index)}
                 />
               ))}
               {activities.length === 0 && (
