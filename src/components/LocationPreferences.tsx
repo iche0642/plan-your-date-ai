@@ -225,7 +225,7 @@ const LocationPreferences = ({ showErrors }: LocationPreferencesProps) => {
                   onClick={() => setSelectedBudget(budget.value)}
                   className={`relative ${
                     selectedBudget === budget.value
-                      ? 'border-rose-500 bg-rose-50 text-rose-700'
+                      ? 'border-rose-500 bg-rose-50 hover:bg-rose-50 text-rose-700'
                       : 'border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300'
                   }`}
                 >

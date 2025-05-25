@@ -211,7 +211,7 @@ const CalendarIntegration = ({ showErrors }: CalendarIntegrationProps) => {
                 <p className="text-sm text-gray-600">
                   Plan and set your date and time manually
                 </p>
-                {selectedOption === 1 && (
+                {selectedOption === 2 && (
                   <div className="absolute top-2 right-2">
                     <Check className="h-5 w-5 text-rose-500" />
                   </div>
@@ -326,7 +326,7 @@ const CalendarIntegration = ({ showErrors }: CalendarIntegrationProps) => {
                   <Input
                     id="startTime"
                     type="time"
-                    value={manualStartTime}
+                    value={manualTime}
                
                           onChange={(e) => setManualTime(e.target.value)}
                           className={`border-rose-200 focus:border-rose-500 ${
@@ -360,7 +360,7 @@ const CalendarIntegration = ({ showErrors }: CalendarIntegrationProps) => {
                   onClick={() => handleDurationSelect(duration.value)}
                   className={`relative ${
                     selectedDuration === duration.value
-                      ? 'border-rose-500 bg-rose-50 text-rose-700'
+                      ? 'border-rose-500 bg-rose-50 hover:bg-rose-50 text-rose-700'
                       : 'border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300'
                   }`}
                 >

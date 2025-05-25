@@ -7,7 +7,6 @@ import { askGemini } from "@/gemini/gemini";
 
 const DatePlanMindMap = () => {
   const [selectedPlan, setSelectedPlan] = useState(0);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [alternativeActivities, setAlternativeActivities] = useState<any[]>([]); // To store alternatives
   const [isLoadingAlternatives, setIsLoadingAlternatives] = useState(false); // Loading state
   const [selectedActivityForReplacement, setSelectedActivityForReplacement] =
@@ -16,10 +15,10 @@ const DatePlanMindMap = () => {
   const fetchAlternatives = async (activity) => {
     setSelectedActivityForReplacement(activity);
     setIsLoadingAlternatives(true);
-    setIsModalVisible(true);
+ 
     try {
       const result = await askGemini(
-        `Find 3 alternative activities for: ${JSON.stringify(
+        `Find 5 alternative activities for: ${JSON.stringify(
           activity
         )}. Provide details like title, type, location, description, estimated price, and a short reason why it's a good alternative.`
       );

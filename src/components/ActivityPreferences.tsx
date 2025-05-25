@@ -160,7 +160,7 @@ const ActivityPreferences = ({ nextStep }: ActivityPreferencesProps) => {
             <Heart className="h-6 w-6 text-rose-500" />
             <span>What activities do you enjoy?</span>
           </CardTitle>
-          <p className="text-gray-600">Select all that interest you - the more you choose, the better we can personalize your date!</p>
+          <p className="text-gray-600 text-md">Select all that interest you - the more you choose, the better we can personalize your date!</p>
         </CardHeader>
         <CardContent className="space-y-8">
           {activityCategories.map((category) => (
@@ -184,7 +184,7 @@ const ActivityPreferences = ({ nextStep }: ActivityPreferencesProps) => {
                       key={activity.id}
                       className={`cursor-pointer transition-all duration-200 ${
                         selectedActivities.includes(activity.id)
-                          ? 'border-rose-500 bg-rose-50 scale-105'
+                          ? 'border-rose-500 bg-rose-50 hover:bg-rose-50 scale-105'
                           : 'border-gray-200 hover:border-rose-300 hover:scale-102'
                       }`}
                       onClick={() => toggleActivity(activity.id)}
