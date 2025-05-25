@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,21 @@ const CreateDate = () => {
     budget: '',
     interests: ''
   });
+  const calendarRef = useRef<HTMLDivElement>(null);
+  const locationRef = useRef<HTMLDivElement>(null);
+  const activityRef = useRef<HTMLDivElement>(null);
+  const planRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to top when changing steps
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
+  const scrollToError = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      ref.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   const steps = [
     { id: 1, title: 'Calendar', icon: Calendar },
@@ -35,6 +50,7 @@ const CreateDate = () => {
       const calendarValidation = JSON.parse(localStorage.getItem('calendarValidation') || '{}');
       if (!calendarValidation.isComplete) {
         setShowCalendarErrors(true);
+        scrollToError(calendarRef);
         return;
       }
       // Update preferences with calendar data
@@ -54,6 +70,7 @@ const CreateDate = () => {
       const locationValidation = JSON.parse(localStorage.getItem('locationValidation') || '{}');
       if (!locationValidation.isComplete) {
         setShowLocationErrors(true);
+        scrollToError(locationRef);
         return;
       }
       // Update preferences with location data
@@ -95,11 +112,6 @@ const CreateDate = () => {
                 DateCraft
               </span>
             </Link>
-            <div className="flex items-center space-x-4">
-              <Button variant="outline" className="border-rose-200 text-rose-600 hover:bg-rose-50">
-                Save Draft
-              </Button>
-            </div>
           </div>
         </div>
       </nav>
@@ -134,10 +146,10 @@ const CreateDate = () => {
 
         {/* Step Content */}
         <div className="space-y-6">
-          {currentStep === 1 && <CalendarIntegration showErrors={showCalendarErrors} />}
-          {currentStep === 2 && <LocationPreferences showErrors={showLocationErrors} />}
-          {currentStep === 3 && <ActivityPreferences nextStep={handleNext} />}
-          {currentStep === 4 && <DatePlanMindMap />}
+          {currentStep === 1 && <div ref={calendarRef}><CalendarIntegration showErrors={showCalendarErrors} /></div>}
+          {currentStep === 2 && <div ref={locationRef}><LocationPreferences showErrors={showLocationErrors} /></div>}
+          {currentStep === 3 && <div ref={activityRef}><ActivityPreferences nextStep={handleNext} /></div>}
+          {currentStep === 4 && <div ref={planRef}><DatePlanMindMap /></div>}
         </div>
 
         {/* Navigation */}
