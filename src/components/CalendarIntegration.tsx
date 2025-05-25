@@ -1,24 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, Link, Clock, Plus, Minus, Search } from "lucide-react";
-import { findCommonFreeTime } from "@/api/calendar";
+import { supabase } from "../../supabaseClient"; // Your configured Supabase client
 
 const CalendarIntegration = () => {
   const [selectedOption, setSelectedOption] = useState<number>(0);
   const [manualDate, setManualDate] = useState("");
   const [manualStartTime, setManualStartTime] = useState<string>("");
+ const [selectedCommonTime, setSelectedCommonTime] = useState<string>("");
   const [calendarLinks, setCalendarLinks] = useState<string[]>([""]); // Initialize with one empty link
   const [dateDuration, setDateDuration] = useState<string>("");
-const [commonTimes, setCommonTimes] = useState<string[]>([])
-
-
-  useEffect(() => {
-    console.log(manualDate, manualStartTime, dateDuration);
-  }, [manualDate, manualStartTime, dateDuration]);
-
+  const [commonTimes, setCommonTimes] = useState<
+    { label: string; value: string; date: string; time: string }[]
+    >([]);
+  
   const addCalendarLink = () => {
     if (calendarLinks.length < 5) {
       setCalendarLinks([...calendarLinks, ""]);
@@ -39,10 +37,48 @@ const [commonTimes, setCommonTimes] = useState<string[]>([])
     setCalendarLinks(newLinks);
   };
 
-  const handleSearchCommonTimes =  async () => {
-    // TODO: Implement calendar search functionality
-    // const result = await findCommonFreeTime(["https://calendar.google.com/calendar/ical/joditankaiyu2412%40gmail.com/public/basic.ics"]);
-    return "2025-05-16 15:15"
+  const handleSearchCommonTimes = async () => {
+    try {
+      const payload = {
+        calendarUrls: calendarLinks,
+      };
+      console.log(
+        "Invoking Supabase function get-free-slots with payload:",
+        payload
+      );
+      const { data, error } = await supabase.functions.invoke(
+        "get-free-slots",
+        {
+          body: payload,
+        }
+      );
+
+      if (error) {
+        console.error("Supabase function invocation error:", error);
+        // Handle client-side errors (network, etc.) or Supabase specific errors
+        alert(`Error invoking function: ${error.message}`);
+        return;
+      }
+
+      if (data.error) {
+        // This is an error string from our function's JSON response
+        console.error("Error from function logic:", data.error);
+        alert(`Error from calendar processing: ${data.error}`);
+        return;
+      }
+
+      console.log("Available free slots:", data.freeSlots);
+      const results = data.freeSlots.map((slot) => ({
+        label: `${slot.date}: ${slot.start} - ${slot.end}`,
+        value: `${slot.date}: ${slot.start} - ${slot.end}`,
+        date: `${slot.date}`,
+        time: `${slot.start} - ${slot.end}`,
+      }));
+      setCommonTimes(results);
+    } catch (e) {
+      console.error("General error:", e);
+      alert(`An unexpected error occurred: ${e.message}`);
+    }
   };
 
   return (
@@ -72,8 +108,8 @@ const [commonTimes, setCommonTimes] = useState<string[]>([])
                 </div>
                 <h3 className="font-semibold mb-2">Calendar Links</h3>
                 <p className="text-sm text-gray-600">
-                  Input up to 5 google calendar links. We will find the perfect time across all
-                  calendars in the week.
+                  Input up to 5 google calendar links. We will find the perfect
+                  time across all calendars in the week, starting from today.
                 </p>
               </CardContent>
             </Card>
@@ -156,6 +192,26 @@ const [commonTimes, setCommonTimes] = useState<string[]>([])
             </div>
           )}
 
+          {commonTimes.length > 1 && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {commonTimes.map((duration) => (
+                <Button
+                  key={duration.value}
+                  value={duration.value}
+                  variant="outline"
+                  className={`text-wrap h-fit ${selectedCommonTime === duration.value ? 'text-black border-rose-500 bg-rose-50 hover:bg-rose-50' : 'border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300'}`}
+                  onClick={() => {
+                    setSelectedCommonTime(duration.value);
+                    setManualDate(duration.date);
+                    setManualStartTime(duration.time);
+                  }}
+                >
+                  {duration.label}
+                </Button>
+              ))}
+            </div>
+          )}
+
           {/* Manual Date Entry Body */}
           {selectedOption === 2 && (
             <div className="border-y border-gray-200 py-6">
@@ -201,8 +257,7 @@ const [commonTimes, setCommonTimes] = useState<string[]>([])
                   key={duration.value}
                   variant="outline"
                   className="border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300"
-                  onChange={() => setDateDuration(duration.value)}
-
+                  onClick={() => setDateDuration(duration.value)}
                 >
                   {duration.label}
                 </Button>
