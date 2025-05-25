@@ -12,6 +12,8 @@ import DatePlanMindMap from '@/components/DatePlanMindMap';
 
 const CreateDate = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showCalendarErrors, setShowCalendarErrors] = useState(false);
+  const [showLocationErrors, setShowLocationErrors] = useState(false);
   const [preferences, setPreferences] = useState({
     calendar: null,
     location: {},
@@ -27,12 +29,58 @@ const CreateDate = () => {
     { id: 4, title: 'Plan', icon: Users }
   ];
 
-  const nextStep = () => {
-    if (currentStep < 4) setCurrentStep(currentStep + 1);
+  const handleNext = () => {
+    if (currentStep === 1) {
+      // Check calendar validation
+      const calendarValidation = JSON.parse(localStorage.getItem('calendarValidation') || '{}');
+      if (!calendarValidation.isComplete) {
+        setShowCalendarErrors(true);
+        return;
+      }
+      // Update preferences with calendar data
+      setPreferences(prev => ({
+        ...prev,
+        calendar: {
+          date: calendarValidation.date,
+          time: calendarValidation.time,
+          duration: calendarValidation.duration,
+          integration: calendarValidation.calendar
+        }
+      }));
+    }
+
+    if (currentStep === 2) {
+      // Check location validation
+      const locationValidation = JSON.parse(localStorage.getItem('locationValidation') || '{}');
+      if (!locationValidation.isComplete) {
+        setShowLocationErrors(true);
+        return;
+      }
+      // Update preferences with location data
+      setPreferences(prev => ({
+        ...prev,
+        location: {
+          places: locationValidation.locations,
+          radius: locationValidation.radius,
+          transport: locationValidation.transport,
+          budget: locationValidation.budget
+        }
+      }));
+    }
+    
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+      setShowCalendarErrors(false);
+      setShowLocationErrors(false);
+    }
   };
 
   const prevStep = () => {
-    if (currentStep > 1) setCurrentStep(currentStep - 1);
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      setShowCalendarErrors(false);
+      setShowLocationErrors(false);
+    }
   };
 
   return (
@@ -76,7 +124,7 @@ const CreateDate = () => {
                     <span className="hidden sm:block font-medium">{step.title}</span>
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={` hidden sm:block w-16 h-0.5 mx-4 ${isCompleted ? 'bg-green-300' : 'bg-gray-300'}`} />
+                    <div className={`hidden sm:block w-16 h-0.5 mx-4 ${isCompleted ? 'bg-green-300' : 'bg-gray-300'}`} />
                   )}
                 </div>
               );
@@ -86,9 +134,9 @@ const CreateDate = () => {
 
         {/* Step Content */}
         <div className="space-y-6">
-          {currentStep === 1 && <CalendarIntegration />}
-          {currentStep === 2 && <LocationPreferences />}
-          {currentStep === 3 && <ActivityPreferences nextStep={nextStep} />}
+          {currentStep === 1 && <CalendarIntegration showErrors={showCalendarErrors} />}
+          {currentStep === 2 && <LocationPreferences showErrors={showLocationErrors} />}
+          {currentStep === 3 && <ActivityPreferences nextStep={handleNext} />}
           {currentStep === 4 && <DatePlanMindMap />}
         </div>
 
@@ -103,7 +151,7 @@ const CreateDate = () => {
             Previous
           </Button>
           <Button 
-            onClick={nextStep} 
+            onClick={handleNext} 
             disabled={currentStep === 4}
             className="bg-gradient-to-r from-rose-500 to-purple-600 hover:from-rose-600 hover:to-purple-700"
           >
